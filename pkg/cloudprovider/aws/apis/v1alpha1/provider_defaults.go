@@ -32,6 +32,7 @@ func (c *Constraints) Default(ctx context.Context) {
 	c.defaultCapacityTypes()
 	c.defaultSubnets(injection.GetOptions(ctx).ClusterName)
 	c.defaultSecurityGroups(injection.GetOptions(ctx).ClusterName)
+	c.defaultInstanceProfile(injection.GetOptions(ctx).DefaultInstanceProfile)
 }
 
 func (c *Constraints) defaultCapacityTypes() {
@@ -74,4 +75,11 @@ func (c *Constraints) defaultSecurityGroups(clusterName string) {
 		return
 	}
 	c.SecurityGroupSelector = map[string]string{fmt.Sprintf(ClusterDiscoveryTagKeyFormat, clusterName): "*"}
+}
+
+func (c *Constraints) defaultInstanceProfile(defaultInstanceProfile string) {
+	if c.InstanceProfile != "" {
+		return
+	}
+	c.InstanceProfile = defaultInstanceProfile
 }

@@ -66,9 +66,10 @@ func TestAPIs(t *testing.T) {
 var _ = BeforeSuite(func() {
 	env = test.NewEnvironment(ctx, func(e *test.Environment) {
 		opts := options.Options{
-			ClusterName:           "test-cluster",
-			ClusterEndpoint:       "https://test-cluster",
-			AWSNodeNameConvention: "ip-name",
+			ClusterName:            "test-cluster",
+			ClusterEndpoint:        "https://test-cluster",
+			AWSNodeNameConvention:  "ip-name",
+			DefaultInstanceProfile: "default-profile",
 		}
 		Expect(opts.Validate()).To(Succeed(), "Failed to validate options")
 		ctx = injection.WithOptions(ctx, opts)
@@ -438,6 +439,21 @@ var _ = Describe("Allocation", func() {
 			constraints, err := v1alpha1.Deserialize(&provisioner.Spec.Constraints)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(constraints.SecurityGroupSelector).To(Equal(map[string]string{"kubernetes.io/cluster/test-cluster": "*"}))
+		})
+		It("should use DefaultInstanceProfile if none provided in Provider", func() {
+			provider = &v1alpha1.AWS{}
+			provisioner = ProvisionerWithProvider(&v1alpha5.Provisioner{ObjectMeta: metav1.ObjectMeta{Name: v1alpha5.DefaultProvisioner.Name}}, provider)
+			provisioner.SetDefaults(ctx)
+
+			constraints, err := v1alpha1.Deserialize(&provisioner.Spec.Constraints)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(constraints.InstanceProfile).To(Equal("default-profile"))
+		})
+		It("should use overridden instanceProfile if provided in Provider", func() {
+			provisioner.SetDefaults(ctx)
+			constraints, err := v1alpha1.Deserialize(&provisioner.Spec.Constraints)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(constraints.InstanceProfile).To(Equal("test-instance-profile"))
 		})
 		It("should default requirements", func() {
 			provisioner.SetDefaults(ctx)
