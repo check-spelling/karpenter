@@ -34,7 +34,7 @@ spec:
           image: {{ .Values.controller.image }}
         {{- if .Values.controller.defaultInstanceProfile }}
           args:
-            - -default-instance-profile={{ .Values.controller.defaultInstanceProfile }}
+            - --default-instance-profile={{ .Values.controller.defaultInstanceProfile }}
         {{- end }}
         {{- if .Values.controller.resources }}
           resources: {{ toYaml .Values.controller.resources | nindent 12 }}
