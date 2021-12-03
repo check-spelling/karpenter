@@ -22,6 +22,8 @@ controller:
   clusterName: ""
   # -- Cluster endpoint
   clusterEndpoint: ""
+  # -- Default instance profile
+  defaultInstanceProfile: ""
   resources:
     requests:
       cpu: 1
