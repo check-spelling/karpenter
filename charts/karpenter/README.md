@@ -27,6 +27,7 @@ You can follow the detailed installation instruction [here](https://karpenter.sh
 | controller.affinity | object | `{}` | Affinity rules for scheduling |
 | controller.clusterEndpoint | string | `""` | Cluster endpoint |
 | controller.clusterName | string | `""` | Cluster name |
+| controller.defaultInstanceProfile | string | `""` | Default instance profile |
 | controller.env | list | `[]` | Additional environment variables to run with |
 | controller.image | string | `"public.ecr.aws/karpenter/controller:v0.5.2@sha256:6b08af0fbeab6da8d9b97ebfb0750bc72a3ac4a97dd0337a1607048292425c48"` | Image to use for the Karpenter controller |
 | controller.nodeSelector | object | `{}` | Node selectors to schedule to nodes with labels. |
