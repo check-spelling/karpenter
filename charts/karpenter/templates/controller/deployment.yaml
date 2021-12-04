@@ -32,10 +32,8 @@ spec:
       containers:
         - name: manager
           image: {{ .Values.controller.image }}
-        {{- if .Values.controller.defaultInstanceProfile }}
           args:
-            - --default-instance-profile={{ .Values.controller.defaultInstanceProfile }}
-        {{- end }}
+            - --default-instance-profile={{ required "controller.defaultInstanceProfile is required to be set" .Values.controller.defaultInstanceProfile }}
         {{- if .Values.controller.resources }}
           resources: {{ toYaml .Values.controller.resources | nindent 12 }}
         {{- end }}
@@ -54,9 +52,9 @@ spec:
               port: 8081
           env:
             - name: CLUSTER_NAME
-              value: {{ .Values.controller.clusterName }}
+              value: {{ required "controller.clusterName is required to be set" .Values.controller.clusterName }}
             - name: CLUSTER_ENDPOINT
-              value: {{ .Values.controller.clusterEndpoint }}
+              value: {{ required "controller.clusterEndpoint is required to be set" .Values.controller.clusterEndpoint }}
             - name: SYSTEM_NAMESPACE
               valueFrom:
                 fieldRef:
