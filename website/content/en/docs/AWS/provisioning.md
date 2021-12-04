@@ -11,9 +11,7 @@ This section covers parameters of the AWS Cloud Provider.
 [Review these fields in the code.](https://github.com/awslabs/karpenter/blob/main/pkg/cloudprovider/aws/apis/v1alpha1/provider.go#L33)
 
 ### InstanceProfile
-An `InstanceProfile` is a way to pass a single IAM role to an EC2 instance. A default instance profile can be set on the controller (by specifying the `-default-instance-profile` argument) and overridden through Provisioner settings.
-
-It is required, if no default was specified with the controller, and specified by name. A suitable `KarpenterNodeRole` is created in the getting started guide.
+An `InstanceProfile` is a way to pass a single IAM role to an EC2 instance. This can be specified to override the default profile specified during installation.
 
 ```
 spec:
