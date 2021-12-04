@@ -27,7 +27,7 @@ func MustParse() Options {
 	opts := Options{}
 	flag.StringVar(&opts.ClusterName, "cluster-name", env.WithDefaultString("CLUSTER_NAME", ""), "The kubernetes cluster name for resource discovery")
 	flag.StringVar(&opts.ClusterEndpoint, "cluster-endpoint", env.WithDefaultString("CLUSTER_ENDPOINT", ""), "The external kubernetes cluster endpoint for new nodes to connect with")
-	flag.StringVar(&opts.DefaultInstanceProfile, "default-instance-profile", env.WithDefaultString("DEFAULT_INSTANCE_PROFILE", ""), "The default instance profile during provisioning if none provided in a Provisioner")
+	flag.StringVar(&opts.DefaultInstanceProfile, "default-instance-profile", env.WithDefaultString("DEFAULT_INSTANCE_PROFILE", ""), "The default instance profile to use when provisioning nodes")
 	flag.IntVar(&opts.MetricsPort, "metrics-port", env.WithDefaultInt("METRICS_PORT", 8080), "The port the metric endpoint binds to for operating metrics about the controller itself")
 	flag.IntVar(&opts.HealthProbePort, "health-probe-port", env.WithDefaultInt("HEALTH_PROBE_PORT", 8081), "The port the health probe endpoint binds to for reporting controller health")
 	flag.IntVar(&opts.WebhookPort, "port", 8443, "The port the webhook endpoint binds to for validation and mutation of resources")
@@ -61,6 +61,9 @@ func (o Options) Validate() (err error) {
 	}
 	if o.AWSNodeNameConvention != "ip-name" && o.AWSNodeNameConvention != "resource-name" {
 		err = multierr.Append(err, fmt.Errorf("aws-node-name-convention may only be either ip-name or resource-name"))
+	}
+	if o.DefaultInstanceProfile == "" {
+		err = multierr.Append(err, fmt.Errorf("DEFAULT_INSTANCE_PROFILE is required"))
 	}
 	return err
 }

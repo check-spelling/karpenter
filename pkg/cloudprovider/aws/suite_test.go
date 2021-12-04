@@ -114,9 +114,7 @@ var _ = Describe("Allocation", func() {
 	var provider *v1alpha1.AWS
 
 	BeforeEach(func() {
-		provider = &v1alpha1.AWS{
-			InstanceProfile: "test-instance-profile",
-		}
+		provider = &v1alpha1.AWS{}
 		provisioner = ProvisionerWithProvider(&v1alpha5.Provisioner{ObjectMeta: metav1.ObjectMeta{Name: v1alpha5.DefaultProvisioner.Name}}, provider)
 		provisioner.SetDefaults(ctx)
 		fakeEC2API.Reset()
@@ -441,19 +439,20 @@ var _ = Describe("Allocation", func() {
 			Expect(constraints.SecurityGroupSelector).To(Equal(map[string]string{"kubernetes.io/cluster/test-cluster": "*"}))
 		})
 		It("should use DefaultInstanceProfile if none provided in Provider", func() {
-			provider = &v1alpha1.AWS{}
-			provisioner = ProvisionerWithProvider(&v1alpha5.Provisioner{ObjectMeta: metav1.ObjectMeta{Name: v1alpha5.DefaultProvisioner.Name}}, provider)
-			provisioner.SetDefaults(ctx)
-
-			constraints, err := v1alpha1.Deserialize(&provisioner.Spec.Constraints)
-			Expect(err).ToNot(HaveOccurred())
-			Expect(constraints.InstanceProfile).To(Equal("default-profile"))
-		})
-		It("should use overridden instanceProfile if provided in Provider", func() {
 			provisioner.SetDefaults(ctx)
 			constraints, err := v1alpha1.Deserialize(&provisioner.Spec.Constraints)
 			Expect(err).ToNot(HaveOccurred())
 			Expect(constraints.InstanceProfile).To(Equal("test-instance-profile"))
+		})
+		It("should use overridden instanceProfile if provided in Provider", func() {
+			provider = &v1alpha1.AWS{
+				InstanceProfile: "overridden-profile",
+			}
+			provisioner = ProvisionerWithProvider(&v1alpha5.Provisioner{ObjectMeta: metav1.ObjectMeta{Name: v1alpha5.DefaultProvisioner.Name}}, provider)
+			provisioner.SetDefaults(ctx)
+			constraints, err := v1alpha1.Deserialize(&provisioner.Spec.Constraints)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(constraints.InstanceProfile).To(Equal("overridden-profile"))
 		})
 		It("should default requirements", func() {
 			provisioner.SetDefaults(ctx)

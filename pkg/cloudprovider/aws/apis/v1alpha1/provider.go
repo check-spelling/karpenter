@@ -34,7 +34,7 @@ type AWS struct {
 	// TypeMeta includes version and kind of the extensions, inferred if not provided.
 	// +optional
 	metav1.TypeMeta `json:",inline"`
-	// InstanceProfile is the AWS identity that instances use. Required if no default is configured on the controller.
+	// The Instance Profile to use for provisioned nodes, overriding the default profile.
 	// +optional
 	InstanceProfile string `json:"instanceProfile"`
 	// LaunchTemplate for the node. If not specified, a launch template will be generated.
