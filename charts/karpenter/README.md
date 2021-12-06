@@ -13,9 +13,9 @@ $ helm repo add karpenter https://charts.karpenter.sh
 $ helm repo update
 $ helm upgrade --install karpenter karpenter/karpenter --namespace karpenter \
   --create-namespace --set serviceAccount.create=false --version 0.5.2 \
-  --set controller.clusterName=${CLUSTER_NAME} \
-  --set controller.clusterEndpoint=$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output json) \
-  --set controller.defaultInstanceProfile=KarpenterNodeInstanceProfile-${CLUSTER_NAME} \
+  --set options.clusterName=${CLUSTER_NAME} \
+  --set options.clusterEndpoint=$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output json) \
+  --set options.defaultInstanceProfile=KarpenterNodeInstanceProfile-${CLUSTER_NAME} \
   --wait # for the defaulting webhook to install before creating a Provisioner
 ```
 
@@ -26,9 +26,6 @@ You can follow the detailed installation instruction [here](https://karpenter.sh
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | controller.affinity | object | `{}` | Affinity rules for scheduling |
-| controller.clusterEndpoint | string | `""` | Required. Cluster endpoint |
-| controller.clusterName | string | `""` | Required. Cluster name |
-| controller.defaultInstanceProfile | string | `""` | Required. The default instance profile to use when launching nodes |
 | controller.env | list | `[]` | Additional environment variables to run with |
 | controller.image | string | `"public.ecr.aws/karpenter/controller:v0.5.2@sha256:6b08af0fbeab6da8d9b97ebfb0750bc72a3ac4a97dd0337a1607048292425c48"` | Image to use for the Karpenter controller |
 | controller.nodeSelector | object | `{}` | Node selectors to schedule to nodes with labels. |
@@ -38,6 +35,9 @@ You can follow the detailed installation instruction [here](https://karpenter.sh
 | controller.resources.requests.cpu | int | `1` |  |
 | controller.resources.requests.memory | string | `"1Gi"` |  |
 | controller.tolerations | list | `[]` | Tolerations to schedule to nodes with taints. |
+| options.clusterEndpoint | string | `""` | Required. Cluster endpoint |
+| options.clusterName | string | `""` | Required. Cluster name |
+| options.defaultInstanceProfile | string | `""` | Required. The default instance profile to use when launching nodes |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account (like the ARN of the IRSA role) |
 | serviceAccount.create | bool | `true` | Create a service account for the application controller |
 | serviceAccount.name | string | `"karpenter"` | Service account name |

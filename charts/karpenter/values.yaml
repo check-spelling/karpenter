@@ -5,6 +5,13 @@ serviceAccount:
   name: karpenter
   # -- Annotations to add to the service account (like the ARN of the IRSA role)
   annotations: {}
+options:
+  # -- Required. Cluster endpoint
+  clusterEndpoint: ""
+  # -- Required. Cluster name
+  clusterName: ""
+  # -- Required. The default instance profile to use when launching nodes
+  defaultInstanceProfile: ""
 controller:
   # -- Additional environment variables to run with
   ## - name: AWS_REGION
