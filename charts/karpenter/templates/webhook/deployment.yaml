@@ -52,7 +52,7 @@ spec:
             - name: CLUSTER_NAME
               value: {{ required "options.clusterName is required to be set" .Values.options.clusterName }}
             - name: CLUSTER_ENDPOINT
-              value: {{ required "options.clusterEndpoint is required to be set" .Valutes.options.clusterEndpoint }}
+              value: {{ required "options.clusterEndpoint is required to be set" .Values.options.clusterEndpoint }}
             - name: DEFAULT_INSTANCE_PROFILE
               value: {{ required "options.defaultInstanceProfile is required to be set" .Values.options.defaultInstanceProfile }}
             - name: SYSTEM_NAMESPACE
