@@ -53,8 +53,10 @@ spec:
               value: {{ required "options.clusterName is required to be set" .Values.options.clusterName }}
             - name: CLUSTER_ENDPOINT
               value: {{ required "options.clusterEndpoint is required to be set" .Values.options.clusterEndpoint }}
-            - name: DEFAULT_INSTANCE_PROFILE
-              value: {{ required "options.defaultInstanceProfile is required to be set" .Values.options.defaultInstanceProfile }}
+            {{- if .Values.options.awsDefaultInstanceProfile }}
+            - name: AWS_DEFAULT_INSTANCE_PROFILE
+              value: {{ .Values.options.awsDefaultInstanceProfile }}
+            {{- end }}
             - name: SYSTEM_NAMESPACE
               valueFrom:
                 fieldRef:

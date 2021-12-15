@@ -103,6 +103,7 @@ func (p *LaunchTemplateProvider) Get(ctx context.Context, constraints *v1alpha1.
 	for amiID, instanceTypes := range amis {
 		// Get userData for Node
 		userData, err := p.getUserData(ctx, constraints, instanceTypes, additionalLabels)
+		instanceProfile := p.getInstanceProfile(ctx, constraints)
 		if err != nil {
 			return nil, err
 		}
@@ -110,7 +111,7 @@ func (p *LaunchTemplateProvider) Get(ctx context.Context, constraints *v1alpha1.
 		launchTemplate, err := p.ensureLaunchTemplate(ctx, &launchTemplateOptions{
 			UserData:          userData,
 			ClusterName:       injection.GetOptions(ctx).ClusterName,
-			InstanceProfile:   constraints.InstanceProfile,
+			InstanceProfile:   instanceProfile,
 			AMIID:             amiID,
 			SecurityGroupsIds: securityGroupsIds,
 			Tags:              constraints.Tags,
@@ -296,6 +297,13 @@ func (p *LaunchTemplateProvider) getNodeTaintArgs(constraints *v1alpha1.Constrai
 		}
 	}
 	return nodeTaintsArgs
+}
+
+func (p *LaunchTemplateProvider) getInstanceProfile(ctx context.Context, constraints *v1alpha1.Constraints) string {
+	if constraints.InstanceProfile != "" {
+		return constraints.InstanceProfile
+	}
+	return injection.GetOptions(ctx).AwsDefaultInstanceProfile
 }
 
 func (p *LaunchTemplateProvider) GetCABundle(ctx context.Context) (*string, error) {

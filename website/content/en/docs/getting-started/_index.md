@@ -160,7 +160,7 @@ helm upgrade --install karpenter karpenter/karpenter --namespace karpenter \
   --create-namespace --set serviceAccount.create=false --version {{< param "latest_release_version" >}} \
   --set options.clusterName=${CLUSTER_NAME} \
   --set options.clusterEndpoint=$(aws eks describe-cluster --name ${CLUSTER_NAME} --query "cluster.endpoint" --output json) \
-  --set options.defaultInstanceProfile=KarpenterNodeInstanceProfile-${CLUSTER_NAME} \
+  --set options.awsDefaultInstanceProfile=KarpenterNodeInstanceProfile-${CLUSTER_NAME} \
   --wait # for the defaulting webhook to install before creating a Provisioner
 ```
 

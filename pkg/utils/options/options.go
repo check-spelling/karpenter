@@ -27,31 +27,38 @@ func MustParse() Options {
 	opts := Options{}
 	flag.StringVar(&opts.ClusterName, "cluster-name", env.WithDefaultString("CLUSTER_NAME", ""), "The kubernetes cluster name for resource discovery")
 	flag.StringVar(&opts.ClusterEndpoint, "cluster-endpoint", env.WithDefaultString("CLUSTER_ENDPOINT", ""), "The external kubernetes cluster endpoint for new nodes to connect with")
-	flag.StringVar(&opts.DefaultInstanceProfile, "default-instance-profile", env.WithDefaultString("DEFAULT_INSTANCE_PROFILE", ""), "The default instance profile to use when provisioning nodes")
 	flag.IntVar(&opts.MetricsPort, "metrics-port", env.WithDefaultInt("METRICS_PORT", 8080), "The port the metric endpoint binds to for operating metrics about the controller itself")
 	flag.IntVar(&opts.HealthProbePort, "health-probe-port", env.WithDefaultInt("HEALTH_PROBE_PORT", 8081), "The port the health probe endpoint binds to for reporting controller health")
 	flag.IntVar(&opts.WebhookPort, "port", 8443, "The port the webhook endpoint binds to for validation and mutation of resources")
 	flag.IntVar(&opts.KubeClientQPS, "kube-client-qps", env.WithDefaultInt("KUBE_CLIENT_QPS", 200), "The smoothed rate of qps to kube-apiserver")
 	flag.IntVar(&opts.KubeClientBurst, "kube-client-burst", env.WithDefaultInt("KUBE_CLIENT_BURST", 300), "The maximum allowed burst of queries to the kube-apiserver")
+	<<<<<<< HEAD
 	flag.StringVar(&opts.AWSNodeNameConvention, "aws-node-name-convention", env.WithDefaultString("AWS_NODE_NAME_CONVENTION", "ip-name"), "The node naming convention used by the AWS cloud provider. DEPRECATION WARNING: this field may be deprecated at any time")
-	flag.Parse()
-	if err := opts.Validate(); err != nil {
-		panic(err)
-	}
-	return opts
+	====== =
+	flag.StringVar(&opts.AwsDefaultInstanceProfile, "aws-default-instance-profile", env.WithDefaultString("AWS_DEFAULT_INSTANCE_PROFILE", ""), "The default instance profile to use when provisioning nodes in AWS")
+	>>>>>>> 4
+	f756d7(Add
+	AWS
+	prefix
+	to default instance profile flag)
+flag.Parse()
+if err := opts.Validate(); err != nil {
+panic(err)
+}
+return opts
 }
 
 // Options for running this binary
 type Options struct {
-	ClusterName            string
-	ClusterEndpoint        string
-	MetricsPort            int
-	HealthProbePort        int
-	WebhookPort            int
-	KubeClientQPS          int
-	KubeClientBurst        int
-	AWSNodeNameConvention  string
-	DefaultInstanceProfile string
+	ClusterName               string
+	ClusterEndpoint           string
+	MetricsPort               int
+	HealthProbePort           int
+	WebhookPort               int
+	KubeClientQPS             int
+	KubeClientBurst           int
+	AWSNodeNameConvention     string
+	AwsDefaultInstanceProfile string
 }
 
 func (o Options) Validate() (err error) {
@@ -62,8 +69,8 @@ func (o Options) Validate() (err error) {
 	if o.AWSNodeNameConvention != "ip-name" && o.AWSNodeNameConvention != "resource-name" {
 		err = multierr.Append(err, fmt.Errorf("aws-node-name-convention may only be either ip-name or resource-name"))
 	}
-	if o.DefaultInstanceProfile == "" {
-		err = multierr.Append(err, fmt.Errorf("DEFAULT_INSTANCE_PROFILE is required"))
+	if o.AwsDefaultInstanceProfile == "" {
+		err = multierr.Append(err, fmt.Errorf("AWS_DEFAULT_INSTANCE_PROFILE is required"))
 	}
 	return err
 }
