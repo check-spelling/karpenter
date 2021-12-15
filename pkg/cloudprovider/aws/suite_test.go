@@ -66,10 +66,10 @@ func TestAPIs(t *testing.T) {
 var _ = BeforeSuite(func() {
 	env = test.NewEnvironment(ctx, func(e *test.Environment) {
 		opts := options.Options{
-			ClusterName:            "test-cluster",
-			ClusterEndpoint:        "https://test-cluster",
-			AWSNodeNameConvention:  "ip-name",
-			DefaultInstanceProfile: "default-profile",
+			ClusterName:               "test-cluster",
+			ClusterEndpoint:           "https://test-cluster",
+			AWSNodeNameConvention:     "ip-name",
+			AwsDefaultInstanceProfile: "test-instance-profile",
 		}
 		Expect(opts.Validate()).To(Succeed(), "Failed to validate options")
 		ctx = injection.WithOptions(ctx, opts)
