@@ -309,7 +309,7 @@ func (p *LaunchTemplateProvider) getInstanceProfile(ctx context.Context, constra
 	}
 	defaultProfile := injection.GetOptions(ctx).AwsDefaultInstanceProfile
 	if defaultProfile == "" {
-		return "", errors.New("no instance profile found on provisioner and no default profile set")
+		return "", errors.New("neither spec.provider.instanceProfile nor aws-default-instance-profile is specified")
 	}
 	return defaultProfile, nil
 }
