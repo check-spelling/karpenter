@@ -309,8 +309,6 @@ spec:
   limits:
     resources:
       cpu: 1000
-  provider:
-    instanceProfile: KarpenterNodeInstanceProfile-${CLUSTER_NAME}
   ttlSecondsAfterEmpty: 30
 EOF
 ```

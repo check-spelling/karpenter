@@ -10,7 +10,7 @@ options:
   clusterEndpoint: ""
   # -- Required. Cluster name
   clusterName: ""
-  # -- Required. The default instance profile to use when launching nodes on AWS
+  # -- The default instance profile to use when launching nodes on AWS
   awsDefaultInstanceProfile: ""
 controller:
   # -- Additional environment variables to run with
@@ -25,11 +25,6 @@ controller:
   affinity: {}
   # -- Image to use for the Karpenter controller
   image: "public.ecr.aws/karpenter/controller:v0.5.2@sha256:6b08af0fbeab6da8d9b97ebfb0750bc72a3ac4a97dd0337a1607048292425c48"
-  clusterName: ""
-  # -- Required. Cluster endpoint
-  clusterEndpoint: ""
-  # -- Required. The default instance profile to use when launching nodes
-  defaultInstanceProfile: ""
   resources:
     requests:
       cpu: 1
