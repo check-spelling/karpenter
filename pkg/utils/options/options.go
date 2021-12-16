@@ -62,9 +62,6 @@ func (o Options) Validate() (err error) {
 	if o.AWSNodeNameConvention != "ip-name" && o.AWSNodeNameConvention != "resource-name" {
 		err = multierr.Append(err, fmt.Errorf("aws-node-name-convention may only be either ip-name or resource-name"))
 	}
-	if o.AwsDefaultInstanceProfile == "" {
-		err = multierr.Append(err, fmt.Errorf("AWS_DEFAULT_INSTANCE_PROFILE is required"))
-	}
 	return err
 }
 
