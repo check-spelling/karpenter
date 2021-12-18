@@ -56,6 +56,7 @@ var unavailableOfferingsCache *cache.Cache
 var fakeEC2API *fake.EC2API
 var provisioners *provisioning.Controller
 var selectionController *selection.Controller
+var clientSet *kubernetes.Clientset
 
 func TestAPIs(t *testing.T) {
 	ctx = TestContextWithLogger(t)
@@ -66,9 +67,10 @@ func TestAPIs(t *testing.T) {
 var _ = BeforeSuite(func() {
 	env = test.NewEnvironment(ctx, func(e *test.Environment) {
 		opts := options.Options{
-			ClusterName:           "test-cluster",
-			ClusterEndpoint:       "https://test-cluster",
-			AWSNodeNameConvention: "ip-name",
+			ClusterName:               "test-cluster",
+			ClusterEndpoint:           "https://test-cluster",
+			AWSNodeNameConvention:     "ip-name",
+			AwsDefaultInstanceProfile: "test-instance-profile",
 		}
 		Expect(opts.Validate()).To(Succeed(), "Failed to validate options")
 		ctx = injection.WithOptions(ctx, opts)
@@ -82,7 +84,7 @@ var _ = BeforeSuite(func() {
 			cache:                cache.New(InstanceTypesAndZonesCacheTTL, CacheCleanupInterval),
 			unavailableOfferings: unavailableOfferingsCache,
 		}
-		clientSet := kubernetes.NewForConfigOrDie(e.Config)
+		clientSet = kubernetes.NewForConfigOrDie(e.Config)
 		cloudProvider := &CloudProvider{
 			subnetProvider:       subnetProvider,
 			instanceTypeProvider: instanceTypeProvider,
@@ -113,9 +115,7 @@ var _ = Describe("Allocation", func() {
 	var provider *v1alpha1.AWS
 
 	BeforeEach(func() {
-		provider = &v1alpha1.AWS{
-			InstanceProfile: "test-instance-profile",
-		}
+		provider = &v1alpha1.AWS{}
 		provisioner = ProvisionerWithProvider(&v1alpha5.Provisioner{ObjectMeta: metav1.ObjectMeta{Name: v1alpha5.DefaultProvisioner.Name}}, provider)
 		provisioner.SetDefaults(ctx)
 		fakeEC2API.Reset()
@@ -424,6 +424,27 @@ var _ = Describe("Allocation", func() {
 				userData, _ := base64.StdEncoding.DecodeString(*input.LaunchTemplateData.UserData)
 				Expect(string(userData)).To(ContainSubstring("--dns-cluster-ip '10.0.10.100'"))
 			})
+			Context("Instance Profile", func() {
+				It("should use the default instance profile if none specified on the Provisioner", func() {
+					provisioner.Spec.KubeletConfiguration.ClusterDNS = []string{"10.0.10.100"}
+					pod := ExpectProvisioned(ctx, env.Client, selectionController, provisioners, ProvisionerWithProvider(provisioner, provider), test.UnschedulablePod())[0]
+					ExpectScheduled(ctx, env.Client, pod)
+					Expect(fakeEC2API.CalledWithCreateLaunchTemplateInput.Cardinality()).To(Equal(1))
+					input := fakeEC2API.CalledWithCreateLaunchTemplateInput.Pop().(*ec2.CreateLaunchTemplateInput)
+					Expect(*input.LaunchTemplateData.IamInstanceProfile.Name).To(Equal("test-instance-profile"))
+				})
+				It("should use the instance profile on the Provisioner when specified", func() {
+					provider = &v1alpha1.AWS{InstanceProfile: "overridden-profile"}
+					provisioner = ProvisionerWithProvider(&v1alpha5.Provisioner{ObjectMeta: metav1.ObjectMeta{Name: v1alpha5.DefaultProvisioner.Name}}, provider)
+					provisioner.SetDefaults(ctx)
+
+					pod := ExpectProvisioned(ctx, env.Client, selectionController, provisioners, ProvisionerWithProvider(provisioner, provider), test.UnschedulablePod())[0]
+					ExpectScheduled(ctx, env.Client, pod)
+					Expect(fakeEC2API.CalledWithCreateLaunchTemplateInput.Cardinality()).To(Equal(1))
+					input := fakeEC2API.CalledWithCreateLaunchTemplateInput.Pop().(*ec2.CreateLaunchTemplateInput)
+					Expect(*input.LaunchTemplateData.IamInstanceProfile.Name).To(Equal("overridden-profile"))
+				})
+			})
 		})
 	})
 	Context("Defaulting", func() {
@@ -439,6 +460,15 @@ var _ = Describe("Allocation", func() {
 			Expect(err).ToNot(HaveOccurred())
 			Expect(constraints.SecurityGroupSelector).To(Equal(map[string]string{"kubernetes.io/cluster/test-cluster": "*"}))
 		})
+
+		// Intent here is that if updates occur on the controller, the Provider doesn't need to be recreated
+		It("should not set the InstanceProfile with the default if none provided in Provider", func() {
+			provisioner.SetDefaults(ctx)
+			constraints, err := v1alpha1.Deserialize(&provisioner.Spec.Constraints)
+			Expect(err).ToNot(HaveOccurred())
+			Expect(constraints.InstanceProfile).To(Equal(""))
+		})
+
 		It("should default requirements", func() {
 			provisioner.SetDefaults(ctx)
 			Expect(provisioner.Spec.Requirements.CapacityTypes().UnsortedList()).To(ConsistOf(v1alpha1.CapacityTypeOnDemand))

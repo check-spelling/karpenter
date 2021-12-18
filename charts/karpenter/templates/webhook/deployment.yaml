@@ -50,9 +50,9 @@ spec:
               port: {{ .Values.webhook.port }}
           env:
             - name: CLUSTER_NAME
-              value: {{ .Values.controller.clusterName }}
+              value: {{ required "options.clusterName is required to be set" .Values.options.clusterName }}
             - name: CLUSTER_ENDPOINT
-              value: {{ .Values.controller.clusterEndpoint }}
+              value: {{ required "options.clusterEndpoint is required to be set" .Values.options.clusterEndpoint }}
             - name: SYSTEM_NAMESPACE
               valueFrom:
                 fieldRef:

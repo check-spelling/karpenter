@@ -247,13 +247,18 @@ resource "helm_release" "karpenter" {
   }
 
   set {
-    name  = "controller.clusterName"
+    name  = "options.clusterName"
     value = var.cluster_name
   }
 
   set {
-    name  = "controller.clusterEndpoint"
+    name  = "options.clusterEndpoint"
     value = module.eks.cluster_endpoint
+  }
+
+  set {
+    name  = "options.awsDefaultInstanceProfile"
+    value = aws_iam_instance_profile.karpenter.name
   }
 }
 ```
@@ -304,8 +309,6 @@ spec:
   limits:
     resources:
       cpu: 1000
-  provider:
-    instanceProfile: KarpenterNodeInstanceProfile-${CLUSTER_NAME}
   ttlSecondsAfterEmpty: 30
 EOF
 ```

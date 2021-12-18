@@ -17,6 +17,7 @@ package v1alpha1
 import (
 	"encoding/json"
 	"fmt"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/aws/karpenter/pkg/apis/provisioning/v1alpha5"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,8 +35,8 @@ type AWS struct {
 	// TypeMeta includes version and kind of the extensions, inferred if not provided.
 	// +optional
 	metav1.TypeMeta `json:",inline"`
-	// InstanceProfile is the AWS identity that instances use.
-	// +required
+	// The Instance Profile to use for provisioned nodes, overriding the default profile.
+	// +optional
 	InstanceProfile string `json:"instanceProfile"`
 	// LaunchTemplate for the node. If not specified, a launch template will be generated.
 	// +optional
@@ -53,7 +54,7 @@ type AWS struct {
 
 func Deserialize(constraints *v1alpha5.Constraints) (*Constraints, error) {
 	if constraints.Provider == nil {
-		return nil, fmt.Errorf("invariant violated: spec.provider is not defined. Is the defaulting webhook installed?")
+		constraints.Provider = &runtime.RawExtension{Raw: []byte{}}
 	}
 	aws := &AWS{}
 	_, gvk, err := Codec.UniversalDeserializer().Decode(constraints.Provider.Raw, nil, aws)
